@@ -11,8 +11,7 @@ const client = require('prom-client');
  *
  * @param yaml_path the path to the yaml file
  *
- * @returns Array of query-based metrics objects
- * @returns Error
+ * @returns [Array of query-based metrics objects, Error]
  */
 function parse_metrics(yaml_path) {
     let metrics = []
