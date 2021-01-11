@@ -1,6 +1,7 @@
 /**
  * Functions for reading and parsing yaml file as additional metric queries
  */
+const debug = require("debug")("metrics");
 const fs = require('fs');
 const yaml = require('js-yaml');
 const client = require('prom-client');
@@ -43,16 +44,17 @@ function parse_metrics(yaml_path) {
  * @param metric_json Metric in json form
  * example: 
  *  { 
-        metrics: [ {
-            name: 'mssql_instance_local_time_custom',
-            help: 'Number of seconds since epoch on local instance (custom version)',
-            labelnames: [ 'state' ] 
-        } ],
-        query: 'SELECT DATEDIFF(second, \'19700101\', GETUTCDATE())',
-        collect: { 
-            per_row: false 
-        } 
-    }
+ *      metrics: [ {
+ *          name: 'mssql_instance_local_time_custom',
+ *          help: 'Number of seconds since epoch on local instance (custom version)' 
+ *      } ],
+ *      query: 'SELECT DATEDIFF(second, \'19700101\', GETUTCDATE())',
+ *      collect: { 
+ *          metrics: [ { 
+ *              submetrics: [ { position: 0 } ] 
+ *          } ]
+ *      } 
+ *  }
  *
  * @returns object usable by index.js; see metrics.js for examples
  */
@@ -84,18 +86,18 @@ function build_collect_function(metric_json) {
             for (let i = 0; i < metric_json.collect.metrics.length; i++) {
                 let labels = {}
                 if (metric_json.collect.metrics[i].shared_labels) {
-                    label = add_labels({}, metric_json.collect.metrics[i].shared_labels, row)
+                    labels = add_labels({}, metric_json.collect.metrics[i].shared_labels, row)
                 }
                 for (let position_obj of metric_json.collect.metrics[i].submetrics) {
-                    const fetched_value = row[position_obj.position].value;
+                    let fetched_value = row[position_obj.position].value;
                     if (position_obj.name) {
                         debug("Fetch ", metric_json.metrics[i].name, position_obj.name, fetched_value);
                     } else {
                         debug("Fetch ", metric_json.metrics[i].name, fetched_value);
                     }
                     let final_labels = labels
-                    if (position_obj.additional_label) {
-                        final_labels = add_labels(labels, position_obj.additional_label, row)
+                    if (position_obj.additional_labels) {
+                        final_labels = add_labels(labels, position_obj.additional_labels, row)
                     }
                     if (Object.keys(final_labels).length != 0) {
                         metrics[metric_json.metrics[i].name].set(final_labels, fetched_value);

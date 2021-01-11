@@ -2,7 +2,7 @@
 
 A query in yaml consists of a top-level name, like `mssql_instance_local_time`, with three children:
 
-* `metrics`: a list of the new Prometheus gauges to register, consisting of a name, help, and labelnames -- this is for documenting the query for DBAs
+* `metrics`: a list of the new Prometheus gauges to register, consisting of a name, help, and labelNames -- this is for documenting the query for DBAs
 * `query`: the mssql query to invoke to get the metrics
 * `collect`: a multi-level structure to be turned into a collect function that turns the raw output of the query into a Prometheus gauge
 
@@ -81,8 +81,8 @@ To step through this, each of these metrics has a database label (derived from t
 
 To create and debug queries, you can add your custom queries to the file, and pass in that value on the command line to the `metrics.js` file, which will print out the query information.
 
-```
+```bash
 CUSTOM_METRICS_PATH=./queries.yaml node ./metrics.js
 ```
 
-A debugging tool would be a useful addition.
+TODO: A debugging tool would be a useful addition.
