@@ -73,7 +73,7 @@ function build_metric_object(metric_json) {
 /**
  * Function that reads JS object and returns collect function
  *
- * @param metric_json Metric in json forml; see queries.yaml for examples
+ * @param metric_json Metric in json forml; see queries.yaml for examples and QUERIES.md for documentation
  *
  * @returns function
  */
@@ -86,7 +86,7 @@ function build_collect_function(metric_json) {
             for (let i = 0; i < metric_json.collect.metrics.length; i++) {
                 let labels = {}
                 if (metric_json.collect.metrics[i].shared_labels) {
-                    labels = add_labels({}, metric_json.collect.metrics[i].shared_labels, row)
+                    labels = add_labels(labels, metric_json.collect.metrics[i].shared_labels, row)
                 }
                 for (let position_obj of metric_json.collect.metrics[i].submetrics) {
                     let fetched_value = row[position_obj.position].value;
@@ -95,12 +95,11 @@ function build_collect_function(metric_json) {
                     } else {
                         debug("Fetch ", metric_json.metrics[i].name, fetched_value);
                     }
-                    let final_labels = labels
                     if (position_obj.additional_labels) {
-                        final_labels = add_labels(labels, position_obj.additional_labels, row)
+                        labels = add_labels(labels, position_obj.additional_labels, row)
                     }
-                    if (Object.keys(final_labels).length != 0) {
-                        metrics[metric_json.metrics[i].name].set(final_labels, fetched_value);
+                    if (Object.keys(labels).length != 0) {
+                        metrics[metric_json.metrics[i].name].set(labels, fetched_value);
                     } else {
                         metrics[metric_json.metrics[i].name].set(fetched_value);
                     }    
