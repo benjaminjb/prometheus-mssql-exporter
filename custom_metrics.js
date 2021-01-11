@@ -28,8 +28,6 @@ function parse_metrics(yaml_path) {
         return [[], error]        
     }
 
-    // Our user-defined queries have a top-level name to make it easier to read
-    // but we don't require that top-level information, so we unwrap the value
     for (let raw_metric in raw_metrics) {
         metrics.push(build_metric_object(raw_metrics[raw_metric]))
     }
